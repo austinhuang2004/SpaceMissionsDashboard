@@ -144,6 +144,9 @@ function QueryPanel({ data }) {
   const [topN, setTopN] = useState(10);
   const [result9, setResult9] = useState(null);
 
+  // Tool 10: Mission status count
+  const [result10, setResult10] = useState(null);
+
   const companies = [...new Set(data.map((r) => r.Company))].filter(Boolean).sort();
 
   const run1 = () => {
@@ -207,6 +210,17 @@ function QueryPanel({ data }) {
       setResult9(data);
     } catch (e) {
       setResult9([]);
+    }
+  };
+
+  const run10 = async () => {
+    try {
+      const res = await fetch(`${API}/api/status-distribution`);
+      if (!res.ok) throw new Error("API error");
+      const data = await res.json();
+      setResult10(data);
+    } catch (e) {
+      setResult10({});
     }
   };
 
@@ -370,6 +384,24 @@ function QueryPanel({ data }) {
           <div style={resultBox}>
             <span style={{ color: "var(--muted)" }}>Average missions per year: </span>
             <span style={{ color: "#818cf8", fontWeight: 700, fontSize: ".9rem" }}>{result8}</span>
+          </div>
+        )}
+      </div>
+
+      {/* getMissionStatusCount */}
+      <div className="chart-card">
+        <div className="chart-title">getMissionStatusCount</div>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <button style={btnStyle} onClick={run10}>Get Status Counts</button>
+        </div>
+        {result10 !== null && (
+          <div style={resultBox}>
+            <div style={{ color: "var(--muted)", marginBottom: 6 }}>Mission status counts:</div>
+            <div style={{ maxHeight: 140, overflowY: "auto", display: "flex", flexDirection: "column", gap: 3 }}>
+              {Object.entries(result10).map(([status, count]) => (
+                <span key={status} style={{ color: "var(--text)", fontSize: ".68rem" }}>• {status}: {count}</span>
+              ))}
+            </div>
           </div>
         )}
       </div>
