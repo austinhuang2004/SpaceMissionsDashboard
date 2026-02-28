@@ -4,44 +4,49 @@ import os
 CSV_PATH = os.path.join(os.path.dirname(__file__), 'data', 'space_missions.csv')
 df = pd.read_csv(CSV_PATH)
 
-df['Date'] = pd.to_datetime(df['Date'])
+# Keep a clean string date column for API serialization BEFORE converting to datetime
+df['Date'] = df['Date'].astype(str).str.strip().str[:10]  # "YYYY-MM-DD"
 
+# Parse price
 if 'Price' in df.columns:
-    df['Price'] = df['Price'].str.replace(',', '').astype(float).fillna(0)
-    
-# func 1 
+    df['Price'] = pd.to_numeric(
+        df['Price'].astype(str).str.replace(',', ''), errors='coerce'
+    ).fillna(0)
+
+# A datetime copy used only for date-comparison functions
+_df_dt = df.copy()
+_df_dt['_dt'] = pd.to_datetime(df['Date'], errors='coerce')
+
+
+# func 1
 def getMissionCountByCompany(companyName: str) -> int:
-    count = len(df[df['Company'] == companyName])
-    return int(count)
+    return int(len(df[df['Company'] == companyName]))
+
 
 # func 2
 def getSuccessRate(companyName: str) -> float:
     company_data = df[df['Company'] == companyName]
     if company_data.empty:
         return 0.0
-    
-    total_missions = len(company_data)
-    success_missions = len(company_data[company_data['MissionStatus'] == 'Success'])
-    
-    rate = (success_missions / total_missions) * 100
-    return round(float(rate), 2)
+    total = len(company_data)
+    successes = len(company_data[company_data['MissionStatus'] == 'Success'])
+    return round(float(successes / total * 100), 2)
 
-# func 3
+
+# func 3 — string comparison works perfectly on YYYY-MM-DD
 def getMissionsByDateRange(startDate: str, endDate: str) -> list:
     mask = (df['Date'] >= startDate) & (df['Date'] <= endDate)
-    filtered = df.loc[mask].sort_values(by=['Date', 'Time']) 
+    filtered = df.loc[mask].sort_values(by=['Date', 'Time'])
     return filtered['Mission'].tolist()
+
 
 # func 4
 def getTopCompaniesByMissionCount(n: int) -> list:
     counts = df['Company'].value_counts().reset_index()
     counts.columns = ['companyName', 'missionCount']
-    
     sorted_df = counts.sort_values(
-        by=['missionCount', 'companyName'], 
-        ascending=[False, True]
+        by=['missionCount', 'companyName'], ascending=[False, True]
     )
-    
     top_n = sorted_df.head(n)
     return list(top_n.itertuples(index=False, name=None))
 
@@ -50,11 +55,9 @@ def getTopCompaniesByMissionCount(n: int) -> list:
 def getMissionStatusCount() -> dict:
     required_keys = ["Success", "Failure", "Partial Failure", "Prelaunch Failure"]
     counts = df['MissionStatus'].value_counts().to_dict()
-    
     return {key: int(counts.get(key, 0)) for key in required_keys}
 
 
 # func 6
 def getMissionsByYear(year: int) -> int:
-    count = len(df[df['Date'].dt.year == year])
-    return int(count)
+    return int(len(df[df['Date'].str[:4] == str(year)]))

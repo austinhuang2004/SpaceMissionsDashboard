@@ -2,6 +2,7 @@ from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Dict
 import missions_logic as logic
+import pandas as pd
 import webbrowser
 
 app = FastAPI(title="Space Missions API")
@@ -49,4 +50,6 @@ def get_status_distribution():
 
 @app.get("/api/raw-data")
 def get_raw_data():
-    return logic.df.to_dict(orient='records')
+    # Replace NaN with None for JSON compliance
+    data = logic.df.where(pd.notnull(logic.df), None).to_dict(orient='records')
+    return data
