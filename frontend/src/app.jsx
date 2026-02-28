@@ -132,6 +132,18 @@ function QueryPanel({ data }) {
   const [year, setYear] = useState("");
   const [result6, setResult6] = useState(null);
 
+  // Tool 7: Most used rocket
+  const [result7, setResult7] = useState(null);
+
+  // Tool 8: Average missions per year
+  const [startYear, setStartYear] = useState("");
+  const [endYear, setEndYear] = useState("");
+  const [result8, setResult8] = useState(null);
+
+  // Tool 9: Top companies by mission count
+  const [topN, setTopN] = useState(10);
+  const [result9, setResult9] = useState(null);
+
   const companies = [...new Set(data.map((r) => r.Company))].filter(Boolean).sort();
 
   const run1 = () => {
@@ -161,6 +173,41 @@ function QueryPanel({ data }) {
     if (!year) return;
     const count = data.filter((r) => String(r.Date ?? "").slice(0, 4) === String(year)).length;
     setResult6(count);
+  };
+
+  const run7 = async () => {
+    try {
+      const res = await fetch(`${API}/api/rockets/most-used`);
+      if (!res.ok) throw new Error("API error");
+      const data = await res.json();
+      setResult7(data.rocket || "N/A");
+    } catch (e) {
+      setResult7("Error fetching data");
+    }
+  };
+
+  const run8 = async () => {
+    if (!startYear || !endYear) return;
+    try {
+      const res = await fetch(`${API}/api/missions/average-per-year?start_year=${startYear}&end_year=${endYear}`);
+      if (!res.ok) throw new Error("API error");
+      const data = await res.json();
+      setResult8(`${data.average}`);
+    } catch (e) {
+      setResult8("Error fetching data");
+    }
+  };
+
+  const run9 = async () => {
+    if (!topN || topN <= 0) return;
+    try {
+      const res = await fetch(`${API}/api/companies/top?n=${topN}`);
+      if (!res.ok) throw new Error("API error");
+      const data = await res.json();
+      setResult9(data);
+    } catch (e) {
+      setResult9([]);
+    }
   };
 
   const inputStyle = {
@@ -257,6 +304,72 @@ function QueryPanel({ data }) {
           <div style={resultBox}>
             <span style={{ color: "var(--muted)" }}>Missions in {year}: </span>
             <span style={{ color: "#c084fc", fontWeight: 700, fontSize: ".9rem" }}>{result6}</span>
+          </div>
+        )}
+      </div>
+
+      {/* getTopCompaniesByMissionCount */}
+      <div className="chart-card">
+        <div className="chart-title">getTopCompaniesByMissionCount</div>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <input
+            type="number" min="1" max="100" placeholder="e.g. 3"
+            style={inputStyle} value={topN}
+            onChange={(e) => setTopN(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && run9()}
+          />
+          <button style={btnStyle} onClick={run9}>Get Top Companies</button>
+        </div>
+        {result9 !== null && (
+          <div style={resultBox}>
+            <div style={{ color: "var(--muted)", marginBottom: 6 }}>Top {topN} companies:</div>
+            <div style={{ maxHeight: 140, overflowY: "auto", display: "flex", flexDirection: "column", gap: 3 }}>
+              {result9.length === 0
+                ? <span style={{ color: "var(--muted)" }}>No data available.</span>
+                : result9.map((c, i) => (
+                  <span key={i} style={{ color: "var(--text)", fontSize: ".68rem" }}>• {c.name}: {c.count} missions</span>
+                ))
+              }
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* getMostUsedRocket */}
+      <div className="chart-card">
+        <div className="chart-title">getMostUsedRocket</div>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <button style={btnStyle} onClick={run7}>Get Most Used Rocket</button>
+        </div>
+        {result7 !== null && (
+          <div style={resultBox}>
+            <span style={{ color: "var(--muted)" }}>Most used rocket: </span>
+            <span style={{ color: "#ffb547", fontWeight: 700, fontSize: ".9rem" }}>{result7}</span>
+          </div>
+        )}
+      </div>
+
+      {/* getAverageMissionsPerYear */}
+      <div className="chart-card">
+        <div className="chart-title">getAverageMissionsPerYear</div>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <input
+            type="number" min="1957" max="2030" placeholder="Start year"
+            style={inputStyle} value={startYear}
+            onChange={(e) => setStartYear(e.target.value)}
+          />
+          <span style={{ fontFamily: "var(--fm)", fontSize: ".65rem", color: "var(--muted)" }}>to</span>
+          <input
+            type="number" min="1957" max="2030" placeholder="End year"
+            style={inputStyle} value={endYear}
+            onChange={(e) => setEndYear(e.target.value)}
+          />
+          <button style={btnStyle} onClick={run8}>Calculate Average</button>
+        </div>
+        {result8 !== null && (
+          <div style={resultBox}>
+            <span style={{ color: "var(--muted)" }}>Average missions per year: </span>
+            <span style={{ color: "#818cf8", fontWeight: 700, fontSize: ".9rem" }}>{result8}</span>
           </div>
         )}
       </div>
@@ -479,7 +592,6 @@ export default function App() {
             <h1 className="hdr-title">Space <span>Missions</span></h1>
             <div className="hdr-sub">1957 — Present · Historical Launch Database</div>
           </div>
-          <div className="hdr-badge">◉ LIVE DATA</div>
         </header>
 
         {/* ── ERROR STATE ── */}

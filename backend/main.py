@@ -53,3 +53,12 @@ def get_raw_data():
     # Replace NaN with None for JSON compliance
     data = logic.df.where(pd.notnull(logic.df), None).to_dict(orient='records')
     return data
+
+@app.get("/api/rockets/most-used")
+def get_most_used_rocket():
+    return {"rocket": logic.getMostUsedRocket()}
+
+@app.get("/api/missions/average-per-year")
+def get_average_missions_per_year(start_year: int, end_year: int):
+    avg = logic.getAverageMissionsPerYear(start_year, end_year)
+    return {"average": avg, "startYear": start_year, "endYear": end_year}

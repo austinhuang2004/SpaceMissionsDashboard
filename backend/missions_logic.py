@@ -61,3 +61,29 @@ def getMissionStatusCount() -> dict:
 # func 6
 def getMissionsByYear(year: int) -> int:
     return int(len(df[df['Date'].str[:4] == str(year)]))
+
+# func 7
+def getMostUsedRocket() -> str:
+    # Filter out empty/None rocket names
+    valid_rockets = [r for r in df['Rocket'] if pd.notna(r) and str(r).strip()]
+    if not valid_rockets:
+        return ""
+    
+    # Count occurrences
+    counts = {}
+    for r in valid_rockets:
+        counts[r] = counts.get(r, 0) + 1
+    
+    # Find max count
+    max_count = max(counts.values()) if counts else 0
+    # Get rockets with max count
+    candidates = [r for r, c in counts.items() if c == max_count]
+    # Return first alphabetically
+    return sorted(candidates)[0] if candidates else ""
+
+# func 8
+def getAverageMissionsPerYear(startYear: int, endYear: int) -> float:
+    mask = df['Date'].str[:4].astype(int).between(startYear, endYear)
+    count = int(len(df[mask]))
+    years = endYear - startYear + 1
+    return round(float(count / years), 2) if years > 0 else 0.0
