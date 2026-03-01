@@ -141,7 +141,7 @@ function QueryPanel({ data }) {
   const [result8, setResult8] = useState(null);
 
   // Tool 9: Top companies by mission count
-  const [topN, setTopN] = useState(10);
+  const [topN, setTopN] = useState("");
   const [result9, setResult9] = useState(null);
 
   // Tool 10: Mission status count
@@ -158,9 +158,10 @@ function QueryPanel({ data }) {
   const run2 = () => {
     if (!company2) return;
     const rows = data.filter((r) => r.Company === company2);
-    if (!rows.length) { setResult2("0.00% (company not found)"); return; }
-    const rate = (rows.filter((r) => r.MissionStatus === "Success").length / rows.length * 100).toFixed(2);
-    setResult2(`${rate}%`);
+    if (!rows.length) { setResult2("0.0% (company not found)"); return; }
+    const successes = rows.filter((r) => r.MissionStatus === "Success").length;
+    const rate = (successes / rows.length) * 100;
+    setResult2(`${successes === 0 ? "0.0" : rate.toFixed(2)}%`);
   };
 
   const run3 = () => {
@@ -244,7 +245,7 @@ function QueryPanel({ data }) {
 
       {/* getMissionCountByCompany */}
       <div className="chart-card">
-        <div className="chart-title">getMissionCountByCompany</div>
+        <div className="chart-title">GET MISSION COUNT BY COMPANY</div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <select style={inputStyle} value={company1} onChange={(e) => setCompany1(e.target.value)}>
             <option value="">Select company…</option>
@@ -262,7 +263,7 @@ function QueryPanel({ data }) {
 
       {/* getSuccessRate */}
       <div className="chart-card">
-        <div className="chart-title">getSuccessRate</div>
+        <div className="chart-title">GET SUCCESS RATE</div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <select style={inputStyle} value={company2} onChange={(e) => setCompany2(e.target.value)}>
             <option value="">Select company…</option>
@@ -280,7 +281,7 @@ function QueryPanel({ data }) {
 
       {/* getMissionsByDateRange */}
       <div className="chart-card">
-        <div className="chart-title">getMissionsByDateRange</div>
+        <div className="chart-title">GET MISSIONS BY DATE RANGE</div>
         <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
           <input type="date" style={{ ...inputStyle, colorScheme: "dark", flex: 1 }} value={startDate} onChange={(e) => setStartDate(e.target.value)} />
           <span style={{ fontFamily: "var(--fm)", fontSize: ".65rem", color: "var(--muted)" }}>to</span>
@@ -304,7 +305,7 @@ function QueryPanel({ data }) {
 
       {/* getMissionsByYear */}
       <div className="chart-card">
-        <div className="chart-title">getMissionsByYear</div>
+        <div className="chart-title">GET MISSIONS BY YEAR</div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <input
             type="number" min="1957" max="2030" placeholder="e.g. 2020"
@@ -324,10 +325,10 @@ function QueryPanel({ data }) {
 
       {/* getTopCompaniesByMissionCount */}
       <div className="chart-card">
-        <div className="chart-title">getTopCompaniesByMissionCount</div>
+        <div className="chart-title">GET TOP COMPANIES BY MISSION COUNT</div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <input
-            type="number" min="1" max="100" placeholder="e.g. 3"
+            type="number" min="1" max="100" placeholder="Enter number of companies to show"
             style={inputStyle} value={topN}
             onChange={(e) => setTopN(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && run9()}
@@ -351,7 +352,7 @@ function QueryPanel({ data }) {
 
       {/* getMostUsedRocket */}
       <div className="chart-card">
-        <div className="chart-title">getMostUsedRocket</div>
+        <div className="chart-title">GET MOST USED ROCKET</div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <button style={btnStyle} onClick={run7}>Get Most Used Rocket</button>
         </div>
@@ -365,7 +366,7 @@ function QueryPanel({ data }) {
 
       {/* getAverageMissionsPerYear */}
       <div className="chart-card">
-        <div className="chart-title">getAverageMissionsPerYear</div>
+        <div className="chart-title">GET AVERAGE MISSIONS PER YEAR</div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <input
             type="number" min="1957" max="2030" placeholder="Start year"
@@ -390,7 +391,7 @@ function QueryPanel({ data }) {
 
       {/* getMissionStatusCount */}
       <div className="chart-card">
-        <div className="chart-title">getMissionStatusCount</div>
+        <div className="chart-title">GET MISSION STATUS COUNT</div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <button style={btnStyle} onClick={run10}>Get Status Counts</button>
         </div>
@@ -411,11 +412,11 @@ function QueryPanel({ data }) {
 }
 
 /* ── DATA TABLE ── */
-const COLS = ["Company","Location","Date","Rocket","Mission","MissionStatus","Price"];
+const COLS = ["Company","Location","Date","Rocket","RocketStatus","Time","Mission","MissionStatus","Price"];
 const PAGE_SIZE = 20;
 
 function DataTable({ data }) {
-  const [filters, setFilters] = useState({ Company: "", Mission: "", MissionStatus: "", startDate: "", endDate: "" });
+  const [filters, setFilters] = useState({ Company: "", Mission: "", MissionStatus: "", startDate: "", endDate: "", minPrice: "", maxPrice: "", rocketStatus: "", time: "" });
   const [sort, setSort] = useState({ key: "Date", dir: "desc" });
   const [page, setPage] = useState(1);
 
@@ -428,6 +429,10 @@ function DataTable({ data }) {
     if (filters.MissionStatus && r.MissionStatus !== filters.MissionStatus) return false;
     if (filters.startDate && String(r.Date ?? "") < filters.startDate) return false;
     if (filters.endDate && String(r.Date ?? "") > filters.endDate) return false;
+    if (filters.minPrice && (r.Price == null || r.Price < Number(filters.minPrice))) return false;
+    if (filters.maxPrice && (r.Price == null || r.Price > Number(filters.maxPrice))) return false;
+    if (filters.rocketStatus && r.RocketStatus !== filters.rocketStatus) return false;
+    if (filters.time && !String(r.Time ?? "").toLowerCase().includes(filters.time.toLowerCase())) return false;
     return true;
   });
 
@@ -455,6 +460,18 @@ function DataTable({ data }) {
         <div style={{ display: "flex", alignItems: "center", gap: 6, fontFamily: "var(--fm)", fontSize: ".62rem", color: "var(--muted)" }}>
           To <input type="date" className="filter-input" style={{ colorScheme: "dark", width: 140 }} value={filters.endDate} onChange={(e) => setF("endDate", e.target.value)} />
         </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, fontFamily: "var(--fm)", fontSize: ".62rem", color: "var(--muted)" }}>
+          Min Price <input type="number" className="filter-input" style={{ colorScheme: "dark", width: 120 }} placeholder="e.g. 10" value={filters.minPrice} onChange={(e) => setF("minPrice", e.target.value)} />
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, fontFamily: "var(--fm)", fontSize: ".62rem", color: "var(--muted)" }}>
+          Max Price <input type="number" className="filter-input" style={{ colorScheme: "dark", width: 120 }} placeholder="e.g. 100" value={filters.maxPrice} onChange={(e) => setF("maxPrice", e.target.value)} />
+        </div>
+        <select className="filter-input" value={filters.rocketStatus} onChange={(e) => setF("rocketStatus", e.target.value)}>
+          <option value="">All rocket statuses</option>
+          <option value="Active">Active</option>
+          <option value="Retired">Retired</option>
+        </select>
+        <input className="filter-input" placeholder="Filter time…" value={filters.time} onChange={(e) => setF("time", e.target.value)} />
         <span className="row-count">{filtered.length.toLocaleString()} missions</span>
       </div>
 
@@ -479,7 +496,7 @@ function DataTable({ data }) {
                         {row[col] ?? "—"}
                       </span>
                     ) : col === "Price" ? (
-                      row[col] && row[col] !== 0 ? `$${Number(row[col]).toLocaleString()}M` : "—"
+                      row[col] && row[col] !== 0 ? `${Number(row[col]).toLocaleString()}` : "—"
                     ) : (
                       row[col] ?? "—"
                     )}
@@ -546,17 +563,9 @@ export default function App() {
         }
         body { background: var(--bg); color: var(--text); font-family: var(--fn); min-height: 100vh; }
 
-        .stars { position: fixed; inset: 0; pointer-events: none; z-index: 0;
-          background:
-            radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,.55) 0%,transparent 100%),
-            radial-gradient(1px 1px at 34% 65%, rgba(255,255,255,.35) 0%,transparent 100%),
-            radial-gradient(1px 1px at 55% 12%, rgba(255,255,255,.5) 0%,transparent 100%),
-            radial-gradient(1px 1px at 72% 82%, rgba(255,255,255,.3) 0%,transparent 100%),
-            radial-gradient(1px 1px at 88% 42%, rgba(255,255,255,.6) 0%,transparent 100%),
-            radial-gradient(600px at 20% 30%, rgba(0,191,255,.04) 0%,transparent 60%),
-            radial-gradient(600px at 80% 70%, rgba(192,132,252,.04) 0%,transparent 60%); }
+        .stars { display: none; }
 
-        .app { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        .app { position: relative; z-index: 1; width: 200%; max-width: 1600px; margin: 0 auto; padding: 2rem; }
 
         .hdr { display: flex; align-items: flex-end; justify-content: space-between; padding-bottom: 1.5rem; margin-bottom: 2rem; border-bottom: 1px solid var(--border); }
         .hdr-eye { font-family: var(--fm); font-size: .68rem; letter-spacing: .25em; text-transform: uppercase; color: var(--green); margin-bottom: .35rem; }
@@ -565,7 +574,7 @@ export default function App() {
         .hdr-sub { font-family: var(--fm); font-size: .72rem; color: var(--muted); margin-top: .4rem; }
         .hdr-badge { font-family: var(--fm); font-size: .62rem; background: rgba(0,229,160,.08); border: 1px solid rgba(0,229,160,.2); color: var(--green); padding: .35rem .8rem; border-radius: 2rem; letter-spacing: .1em; }
 
-        .stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; margin-bottom: 1.5rem; }
+        .stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; margin-bottom: 1.5rem; }
         .stat-card { background: var(--s1); border: 1px solid var(--border); border-radius: .75rem; padding: 1.5rem; position: relative; overflow: hidden; transition: border-color .2s; }
         .stat-card::before { content:''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--accent, var(--green)); opacity: .7; }
         .stat-card:hover { border-color: var(--accent, var(--green)); }
@@ -577,11 +586,10 @@ export default function App() {
         .tab.active { background: var(--s2); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,.4); }
         .tab:hover:not(.active) { color: var(--text); }
 
-        .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
+        .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
         .chart-card { background: var(--s1); border: 1px solid var(--border); border-radius: .75rem; padding: 1.5rem; }
         .chart-card.full { grid-column: 1/-1; }
-        .chart-title { font-family: var(--fm); font-size: .62rem; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); margin-bottom: 1.25rem; display: flex; align-items: center; gap: .5rem; }
-        .chart-title::before { content:''; width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+        .chart-title { font-family: var(--fm); font-size: .62rem; letter-spacing: .2em; text-transform: uppercase; color: var(--text); margin-bottom: 1.25rem; display: flex; align-items: center; gap: .5rem; }
 
         .table-section { background: var(--s1); border: 1px solid var(--border); border-radius: .75rem; overflow: hidden; }
         .table-filters { display: flex; align-items: center; gap: 8px; padding: 12px 18px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
@@ -650,7 +658,6 @@ export default function App() {
               <StatCard label="Total Missions"      value={summary?.total}        accent="#00e5a0" />
               <StatCard label="Success Rate"        value={summary?.successRate}  suffix="%" accent="#00bfff" />
               <StatCard label="Successful Launches" value={summary?.successCount} accent="#c084fc" />
-              <StatCard label="Top Organization"    value={summary?.topCompany}   accent="#ffb547" />
             </div>
 
             <div className="tabs">
