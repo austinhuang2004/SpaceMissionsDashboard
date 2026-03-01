@@ -30,7 +30,8 @@ def getSuccessRate(companyName: str) -> float:
         return 0.0
     total = len(company_data)
     successes = len(company_data[company_data['MissionStatus'] == 'Success'])
-    return round(float(successes / total * 100), 2)
+    rate = float(successes / total * 100)
+    return round(rate, 1) if rate == 0.0 else round(rate, 2)
 
 
 # func 3 — string comparison works perfectly on YYYY-MM-DD
