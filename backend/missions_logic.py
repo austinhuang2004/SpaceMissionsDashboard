@@ -74,7 +74,8 @@ def getMostUsedRocket() -> str:
     return sorted(candidates)[0] if candidates else ""
 
 def getAverageMissionsPerYear(startYear: int, endYear: int) -> float:
+    # grabe year, convert text to #, check between 
     mask = df['Date'].str[:4].astype(int).between(startYear, endYear)
     count = int(len(df[mask]))
-    years = endYear - startYear + 1
+    years = endYear - startYear + 1 # ensure inclusive count
     return round(float(count / years), 2) if years > 0 else 0.0
