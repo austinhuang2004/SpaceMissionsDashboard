@@ -2,3 +2,6 @@ fastapi==0.115.0
 uvicorn[standard]==0.34.0
 pandas==2.2.3
 python-multipart==0.0.12
+
+# Frontend Requirements
+# Note: Node.js 20.19+ or 22.12+ required for Vite (install separately)

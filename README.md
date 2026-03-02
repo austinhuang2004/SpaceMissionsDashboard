@@ -4,6 +4,61 @@
 - **Query Functions**: 8 specialized API endpoints for data analysis
 - **Data Visualization**: Charts and graphs for mission insights
 
+### Prerequisites
+
+- **Python 3.8+**
+- **Node.js 22.14.0***
+- **Git**
+
+### Installation and Setup
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/austinhuang2004/SpaceMissionsDashboard.git
+   cd SpaceMissionsDashboard
+   ```
+
+2. **Backend Setup**
+   ```bash
+   cd backend
+   pip install -r requirements.txt
+   uvicorn main:app --reload
+   ```
+   - Backend will start on `http://127.0.0.1:8000`
+   - Keep this terminal open
+
+3. **Frontend Setup** (in a new terminal)
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   ```
+   - Frontend will start on `http://localhost:5173`
+   - Open this URL in your browser
+
+## Features
+
+### Dashboard Overview
+- **Mission Statistics**: Total missions, success rate, top company
+- **Interactive Charts**: Company mission counts, mission timeline
+- **Real-time Data**: Live filtering and search capabilities
+
+### Query Functions
+- **Mission Count by Company**: Get total missions for any company
+- **Success Rate**: Calculate success percentage for companies
+- **Date Range Search**: Find missions between specific dates
+- **Year-based Queries**: Get missions by year or average per year
+- **Status Distribution**: View mission outcome statistics
+- **Top Companies**: Find companies with most missions
+- **Most Used Rocket**: Discover the most frequently used rocket
+
+### Data Table
+- **Advanced Filtering**: Filter by company, mission, status, date range, price, rocket status
+- **Sorting**: Click column headers to sort data
+- **Pagination**: Navigate through large datasets
+- **Status Colors**: Visual indicators for mission outcomes
+
+
 ## Visualizations and Design Choices
 
 ### 1. **Statistical Overview Cards**
@@ -35,24 +90,21 @@
 **Method**: Virtualized table with pagination, column sorting, and search functionality.
 
 
-## Installation and Setup
+## Project Structure
 
-### Prerequisites
-- Python 3.8+
-- Node.js 16+
-
-### Backend Setup
-```bash
-cd backend
-pip install -r requirements.txt
-uvicorn main:app --reload
 ```
-
-### Frontend Setup
-```bash
-cd frontend
-npm install
-npm run dev
-```   
-
-- Then open the localhost link in the terminal
+SpaceMissionsDashboard/
+├── backend/
+│   ├── main.py              # FastAPI server
+│   ├── missions_logic.py    # Data processing functions
+│   ├── requirements.txt     # Python dependencies
+│   └── data/
+│       └── space_missions.csv  # Mission data
+└── frontend/
+    ├── package.json         # Node.js dependencies
+    ├── vite.config.js       # Vite configuration
+    ├── src/
+    │   ├── app.jsx          # Main application
+    │   ├── components/      # React components
+    │   └── index.css        # Global styles
+```
