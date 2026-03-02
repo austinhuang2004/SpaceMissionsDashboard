@@ -27,6 +27,47 @@ function QueryPanel({ data }) {
 
   const [missionStatusCountResult, setMissionStatusCountResult] = useState(null);
 
+  // Clear functions
+  const clearMissionCount = () => {
+    setCompanyForMissionCount("");
+    setMissionCountResult(null);
+  };
+
+  const clearSuccessRate = () => {
+    setCompanyForSuccessRate("");
+    setSuccessRateResult(null);
+  };
+
+  const clearDateRange = () => {
+    setStartDate("");
+    setEndDate("");
+    setMissionsByDateRangeResult(null);
+  };
+
+  const clearYear = () => {
+    setYear("");
+    setMissionsByYearResult(null);
+  };
+
+  const clearMostUsedRocket = () => {
+    setMostUsedRocketResult(null);
+  };
+
+  const clearAverageMissions = () => {
+    setStartYear("");
+    setEndYear("");
+    setAverageMissionsResult(null);
+  };
+
+  const clearTopCompanies = () => {
+    setTopN("");
+    setTopCompaniesResult(null);
+  };
+
+  const clearMissionStatus = () => {
+    setMissionStatusCountResult(null);
+  };
+
   const companies = [...new Set(data.map((r) => r.Company))].filter(Boolean).sort();
 
   const getMissionCountByCompany = () => {
@@ -134,7 +175,15 @@ function QueryPanel({ data }) {
           <button style={btnStyle} onClick={getMissionCountByCompany}>Run</button>
         </div>
         {missionCountResult !== null && (
-          <div style={resultBox}>
+          <div style={{ ...resultBox, position: "relative" }}>
+            <button
+              onClick={clearMissionCount}
+              style={{
+                position: "absolute", top: 4, right: 6, background: "transparent", border: "none",
+                color: "var(--muted)", cursor: "pointer", fontSize: ".65rem", fontFamily: "var(--fm)"
+              }}
+              title="Clear result"
+            >✕</button>
             <span style={{ color: "var(--muted)" }}>Total missions: </span>
             <span style={{ color: "var(--green)", fontWeight: 700, fontSize: ".9rem" }}>{missionCountResult}</span>
           </div>
@@ -152,7 +201,15 @@ function QueryPanel({ data }) {
           <button style={btnStyle} onClick={getSuccessRateByCompany}>Run</button>
         </div>
         {successRateResult !== null && (
-          <div style={resultBox}>
+          <div style={{ ...resultBox, position: "relative" }}>
+            <button
+              onClick={clearSuccessRate}
+              style={{
+                position: "absolute", top: 4, right: 6, background: "transparent", border: "none",
+                color: "var(--muted)", cursor: "pointer", fontSize: ".65rem", fontFamily: "var(--fm)"
+              }}
+              title="Clear result"
+            >✕</button>
             <span style={{ color: "var(--muted)" }}>Success rate: </span>
             <span style={{ color: "#00bfff", fontWeight: 700, fontSize: ".9rem" }}>{successRateResult}</span>
           </div>
@@ -169,7 +226,15 @@ function QueryPanel({ data }) {
           <button style={btnStyle} onClick={getMissionsByDateRange}>Run</button>
         </div>
         {missionsByDateRangeResult !== null && (
-          <div style={resultBox}>
+          <div style={{ ...resultBox, position: "relative" }}>
+            <button
+              onClick={clearDateRange}
+              style={{
+                position: "absolute", top: 4, right: 6, background: "transparent", border: "none",
+                color: "var(--muted)", cursor: "pointer", fontSize: ".65rem", fontFamily: "var(--fm)"
+              }}
+              title="Clear result"
+            >✕</button>
             <div style={{ color: "var(--muted)", marginBottom: 6 }}>{missionsByDateRangeResult.length} missions found:</div>
             <div style={{ maxHeight: 140, overflowY: "auto", display: "flex", flexDirection: "column", gap: 3 }}>
               {missionsByDateRangeResult.length === 0
@@ -196,7 +261,15 @@ function QueryPanel({ data }) {
           <button style={btnStyle} onClick={getMissionsByYear}>Run</button>
         </div>
         {missionsByYearResult !== null && (
-          <div style={resultBox}>
+          <div style={{ ...resultBox, position: "relative" }}>
+            <button
+              onClick={clearYear}
+              style={{
+                position: "absolute", top: 4, right: 6, background: "transparent", border: "none",
+                color: "var(--muted)", cursor: "pointer", fontSize: ".65rem", fontFamily: "var(--fm)"
+              }}
+              title="Clear result"
+            >✕</button>
             <span style={{ color: "var(--muted)" }}>Missions in {year}: </span>
             <span style={{ color: "#c084fc", fontWeight: 700, fontSize: ".9rem" }}>{missionsByYearResult}</span>
           </div>
@@ -216,7 +289,15 @@ function QueryPanel({ data }) {
           <button style={btnStyle} onClick={getTopCompaniesByMissionCount}>Get Top Companies</button>
         </div>
         {topCompaniesResult !== null && (
-          <div style={resultBox}>
+          <div style={{ ...resultBox, position: "relative" }}>
+            <button
+              onClick={clearTopCompanies}
+              style={{
+                position: "absolute", top: 4, right: 6, background: "transparent", border: "none",
+                color: "var(--muted)", cursor: "pointer", fontSize: ".65rem", fontFamily: "var(--fm)"
+              }}
+              title="Clear result"
+            >✕</button>
             <div style={{ color: "var(--muted)", marginBottom: 6 }}>Top {topN} companies:</div>
             <div style={{ maxHeight: 140, overflowY: "auto", display: "flex", flexDirection: "column", gap: 3 }}>
               {topCompaniesResult.length === 0
@@ -237,7 +318,15 @@ function QueryPanel({ data }) {
           <button style={btnStyle} onClick={getMostUsedRocket}>Get Most Used Rocket</button>
         </div>
         {mostUsedRocketResult !== null && (
-          <div style={resultBox}>
+          <div style={{ ...resultBox, position: "relative" }}>
+            <button
+              onClick={clearMostUsedRocket}
+              style={{
+                position: "absolute", top: 4, right: 6, background: "transparent", border: "none",
+                color: "var(--muted)", cursor: "pointer", fontSize: ".65rem", fontFamily: "var(--fm)"
+              }}
+              title="Clear result"
+            >✕</button>
             <span style={{ color: "var(--muted)" }}>Most used rocket: </span>
             <span style={{ color: "#ffb547", fontWeight: 700, fontSize: ".9rem" }}>{mostUsedRocketResult}</span>
           </div>
@@ -262,7 +351,15 @@ function QueryPanel({ data }) {
           <button style={btnStyle} onClick={getAverageMissionsPerYear}>Calculate Average</button>
         </div>
         {averageMissionsResult !== null && (
-          <div style={resultBox}>
+          <div style={{ ...resultBox, position: "relative" }}>
+            <button
+              onClick={clearAverageMissions}
+              style={{
+                position: "absolute", top: 4, right: 6, background: "transparent", border: "none",
+                color: "var(--muted)", cursor: "pointer", fontSize: ".65rem", fontFamily: "var(--fm)"
+              }}
+              title="Clear result"
+            >✕</button>
             <span style={{ color: "var(--muted)" }}>Average missions per year: </span>
             <span style={{ color: "#818cf8", fontWeight: 700, fontSize: ".9rem" }}>{averageMissionsResult}</span>
           </div>
@@ -276,7 +373,15 @@ function QueryPanel({ data }) {
           <button style={btnStyle} onClick={getMissionStatusCount}>Get Status Counts</button>
         </div>
         {missionStatusCountResult !== null && (
-          <div style={resultBox}>
+          <div style={{ ...resultBox, position: "relative" }}>
+            <button
+              onClick={clearMissionStatus}
+              style={{
+                position: "absolute", top: 4, right: 6, background: "transparent", border: "none",
+                color: "var(--muted)", cursor: "pointer", fontSize: ".65rem", fontFamily: "var(--fm)"
+              }}
+              title="Clear result"
+            >✕</button>
             <div style={{ color: "var(--muted)", marginBottom: 6 }}>Mission status counts:</div>
             <div style={{ maxHeight: 140, overflowY: "auto", display: "flex", flexDirection: "column", gap: 3 }}>
               {Object.entries(missionStatusCountResult).map(([status, count]) => (

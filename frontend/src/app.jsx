@@ -135,7 +135,6 @@ export default function App() {
       <div className="app">
         <header className="hdr">
           <div>
-            <div className="hdr-eye">Mission Intelligence Platform</div>
             <h1 className="hdr-title">Space <span>Missions</span></h1>
             <div className="hdr-sub">1957 — Present · Historical Launch Database</div>
           </div>

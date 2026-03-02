@@ -1,89 +1,56 @@
 # Space Missions Dashboard
 
-A comprehensive historical space launch database and analytics dashboard built with FastAPI (backend) and React (frontend).
+- **Interactive Dashboard**: Real-time statistics and visualizations
+- **Query Functions**: 8 specialized API endpoints for data analysis
+- **Data Visualization**: Charts and graphs for mission insights
 
-## Installation
+## Visualizations and Design Choices
+
+### 1. **Statistical Overview Cards**
+**Why this visualization**: Large, bold numbers provide immediate impact and key metrics at a glance.
+**Method**: Counters with smooth transitions to engage users and highlight statistics. 
+
+### 2. **Mission Status Distribution (Status Bar Chart)**
+**Why this visualization**: A horizontal bar chart effectively shows the proportion of different mission outcomes.
+**Method**: SVG-based bars with color coding (green for success, red for failure, etc.).
+
+
+### 3. **Top Organizations (Company Bars Chart)**
+**Why this visualization**: A horizontal bar revealing the top 10 organizations based on the amount of missions they have - to show relevancy.
+**Method**: Company names on left side and numbers of missions on the right with different display colors.
+
+
+### 4. **Launches Per Year (Timeline Chart)**
+**Why this visualization**: A line chart effectively shows trends and patterns over time, to see the growth/decay throughout the years.
+**Method**: SVG line with data points.
+
+
+### 5. **Query Functions Interface**
+**Why this visualization**: A form-based interface makes complex queries accessible to all users.
+**Method**: Interactive forms with real-time results display.
+
+
+### 6. **Interactive Data Table**
+**Why this visualization**: A sortable, filterable table allows users to explore the complete dataset.
+**Method**: Virtualized table with pagination, column sorting, and search functionality.
+
+
+## Installation and Setup
 
 ### Prerequisites
-- Python 3.8 or higher
-- Node.js 18 or higher
-- npm (comes with Node.js)
+- Python 3.8+
+- Node.js 16+
 
-### Quick Start
-
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd SpaceMissionsDashboard
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm run install:all
-   ```
-
-3. **Start the backend server**
-   ```bash
-   npm run start
-   ```
-
-4. **Start the frontend development server**
-   ```bash
-   npm run dev
-   ```
-
-5. **Open your browser**
-   - Frontend: http://localhost:5173
-   - Backend API: http://localhost:8000
-
-### Manual Installation
-
-#### Backend Setup
+### Backend Setup
 ```bash
 cd backend
 pip install -r requirements.txt
-uvicorn main:app --host 0.0.0.0 --port 8000
+uvicorn main:app --reload
 ```
 
-#### Frontend Setup
+### Frontend Setup
 ```bash
 cd frontend
 npm install
 npm run dev
-```
-
-## Project Structure
-
-```
-SpaceMissionsDashboard/
-├── backend/                 # FastAPI backend
-│   ├── main.py             # API endpoints and server
-│   ├── missions_logic.py   # Data processing logic
-│   ├── requirements.txt    # Python dependencies
-│   └── data/               # Data files
-│       └── space_missions.csv
-├── frontend/               # React frontend
-│   ├── src/
-│   │   ├── app.jsx         # Main application component
-│   │   ├── index.css       # Global styles
-│   │   └── main.jsx        # Application entry point
-│   ├── package.json        # Frontend dependencies
-│   ├── tailwind.config.js  # TailwindCSS configuration
-│   └── vite.config.js      # Vite configuration
-├── package.json            # Root package.json with scripts
-└── README.md              # This file
-```
-
-## Technology Stack
-
-### Backend
-- **FastAPI**: Modern Python web framework for building APIs
-- **Pandas**: Data manipulation and analysis
-- **Uvicorn**: ASGI server for running the application
-
-### Frontend
-- **React 19**: Modern JavaScript library for building user interfaces
-- **Vite**: Fast build tool and development server
-- **TailwindCSS**: Utility-first CSS framework
-- **Recharts**: Chart library for data visualization
-- **TypeScript**: Type-safe JavaScript development
+```   

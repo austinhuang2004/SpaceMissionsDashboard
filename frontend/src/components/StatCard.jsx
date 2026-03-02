@@ -21,7 +21,7 @@ function StatCard({ label, value, suffix = "", accent }) {
   const animated = useCounter(typeof value === "number" ? value : 0);
   return (
     <div className="stat-card" style={{ "--accent": accent }}>
-      <div className="stat-value">
+      <div className="stat-value" style={{ fontFamily: "'Inter', 'Segoe UI', Arial, sans-serif", fontWeight: "700" }}>
         {typeof value === "number" ? animated.toLocaleString() : (value ?? "—")}
         {typeof value === "number" ? suffix : ""}
       </div>
