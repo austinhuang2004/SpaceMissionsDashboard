@@ -7,7 +7,7 @@
 ### Prerequisites
 
 - **Python 3.8+**
-- **Node.js 22.14.0***
+- **Node.js 22.14.0**
 - **Git**
 
 ### Installation and Setup
