@@ -36,6 +36,25 @@
    - Frontend will start on `http://localhost:5173`
    - Open this URL in your browser
 
+## Project Structure
+
+```
+SpaceMissionsDashboard/
+├── backend/
+│   ├── main.py              # FastAPI server
+│   ├── missions_logic.py    # Data processing functions
+│   ├── requirements.txt     # Python dependencies
+│   └── data/
+│       └── space_missions.csv  # Mission data
+└── frontend/
+    ├── package.json         # Node.js dependencies
+    ├── vite.config.js       # Vite configuration
+    ├── src/
+    │   ├── app.jsx          # Main application
+    │   ├── components/      # React components
+    │   └── index.css        # Global styles
+```
+
 ## Features
 
 ### Dashboard Overview
@@ -88,23 +107,3 @@
 ### 6. **Interactive Data Table**
 **Why this visualization**: A sortable, filterable table allows users to explore the complete dataset.
 **Method**: Virtualized table with pagination, column sorting, and search functionality.
-
-
-## Project Structure
-
-```
-SpaceMissionsDashboard/
-├── backend/
-│   ├── main.py              # FastAPI server
-│   ├── missions_logic.py    # Data processing functions
-│   ├── requirements.txt     # Python dependencies
-│   └── data/
-│       └── space_missions.csv  # Mission data
-└── frontend/
-    ├── package.json         # Node.js dependencies
-    ├── vite.config.js       # Vite configuration
-    ├── src/
-    │   ├── app.jsx          # Main application
-    │   ├── components/      # React components
-    │   └── index.css        # Global styles
-```
