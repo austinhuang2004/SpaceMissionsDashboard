@@ -54,3 +54,5 @@ cd frontend
 npm install
 npm run dev
 ```   
+
+- Then open the localhost link in the terminal
