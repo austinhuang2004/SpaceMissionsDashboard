@@ -18,7 +18,11 @@ if df.empty:
     raise ValueError("No data loaded from CSV file")
 
 # turn all entry to str, remove whitespace, take first 10 chars
-df['Date'] = df['Date'].astype(str).str.strip().str[:10] 
+df['Date'] = df['Date'].astype(str).str.strip().str[:10]
+
+# earliest and latest dates for validation
+earliest_date = df['Date'].min()
+latest_date = df['Date'].max()
 
 # parse price
 if 'Price' in df.columns:
@@ -67,6 +71,10 @@ def getMissionsByDateRange(startDate: str, endDate: str) -> list:
     if startDate > endDate:
         return []
     
+    # Check if dates are within the available data range
+    if startDate < earliest_date or endDate > latest_date:
+        return []
+    
     mask = (df['Date'] >= startDate) & (df['Date'] <= endDate)
     filtered = df.loc[mask].sort_values(by=['Date', 'Time']) # select/sort specific rows
     return filtered['Mission'].tolist() # return only mission
@@ -96,8 +104,14 @@ def getMissionStatusCount() -> dict:
     return {key: int(counts.get(key, 0)) for key in required_keys}
 
 def getMissionsByYear(year: int) -> int:
-    if not isinstance(year, int) or year < 1950 or year > 2030:
+    if not isinstance(year, int):
         return 0
+    
+    earliest_year = int(earliest_date[:4])
+    latest_year = int(latest_date[:4])
+    
+    if year < earliest_year or year > latest_year:
+        raise ValueError(f"Year {year} is out of bounds. Available range: {earliest_year}-{latest_year}")
     
     return int(len(df[df['Date'].str[:4] == str(year)]))
 
@@ -125,8 +139,12 @@ def getAverageMissionsPerYear(startYear: int, endYear: int) -> float:
     if startYear > endYear:
         return 0.0
     
-    if startYear < 1950 or endYear > 2030:
-        return 0.0
+    earliest_year = int(earliest_date[:4])
+    latest_year = int(latest_date[:4])
+    
+    # check if years are within the available data range
+    if startYear < earliest_year or endYear > latest_year:
+        raise ValueError(f"Year range {startYear}-{endYear} is out of bounds. Available range: {earliest_year}-{latest_year}")
     
     # grab year, convert text to #, check between 
     mask = df['Date'].str[:4].astype(int).between(startYear, endYear)

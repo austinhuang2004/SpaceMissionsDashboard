@@ -56,3 +56,8 @@ def get_most_used_rocket():
 def get_average_missions_per_year(start_year: int, end_year: int):
     avg = logic.getAverageMissionsPerYear(start_year, end_year)
     return {"average": avg, "startYear": start_year, "endYear": end_year}
+
+@app.get("/api/missions/by-year")
+def get_missions_by_year(year: int):
+    count = logic.getMissionsByYear(year)
+    return count

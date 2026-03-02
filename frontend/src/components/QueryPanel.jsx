@@ -27,7 +27,7 @@ function QueryPanel({ data }) {
 
   const [missionStatusCountResult, setMissionStatusCountResult] = useState(null);
 
-  // Clear functions
+  // clear functions
   const clearMissionCount = () => {
     setCompanyForMissionCount("");
     setMissionCountResult(null);
@@ -69,6 +69,9 @@ function QueryPanel({ data }) {
   };
 
   const companies = [...new Set(data.map((r) => r.Company))].filter(Boolean).sort();
+  
+  const earliestDate = data.length > 0 ? data.reduce((min, r) => r.Date < min ? r.Date : min, data[0].Date) : "";
+  const latestDate = data.length > 0 ? data.reduce((max, r) => r.Date > max ? r.Date : max, data[0].Date) : "";
 
   const getMissionCountByCompany = () => {
     if (!companyForMissionCount) return;
@@ -94,10 +97,24 @@ function QueryPanel({ data }) {
     setMissionsByDateRangeResult(missions);
   };
 
-  const getMissionsByYear = () => {
+  const getMissionsByYear = async () => {
     if (!year) return;
-    const count = data.filter((r) => String(r.Date ?? "").slice(0, 4) === String(year)).length;
-    setMissionsByYearResult(count);
+    try {
+      const res = await fetch(`${API}/api/missions/by-year?year=${year}`);
+      if (!res.ok) {
+        const errorData = await res.json();
+        if (errorData.detail && errorData.detail.includes("out of bounds")) {
+          setMissionsByYearResult("Out of bounds");
+        } else {
+          setMissionsByYearResult(`Error: ${errorData.detail || 'Unknown error'}`);
+        }
+        return;
+      }
+      const count = await res.json();
+      setMissionsByYearResult(count);
+    } catch (e) {
+      setMissionsByYearResult("Error: out of bounds, min = 1957, max = 2022");
+    }
   };
 
   const getMostUsedRocket = async () => {
@@ -115,11 +132,19 @@ function QueryPanel({ data }) {
     if (!startYear || !endYear) return;
     try {
       const res = await fetch(`${API}/api/missions/average-per-year?start_year=${startYear}&end_year=${endYear}`);
-      if (!res.ok) throw new Error("API error");
+      if (!res.ok) {
+        const errorData = await res.json();
+        if (errorData.detail && errorData.detail.includes("out of bounds")) {
+          setAverageMissionsResult("Out of bounds");
+        } else {
+          setAverageMissionsResult(`Error: ${errorData.detail || 'Unknown error'}`);
+        }
+        return;
+      }
       const data = await res.json();
       setAverageMissionsResult(`${data.average}`);
     } catch (e) {
-      setAverageMissionsResult("Error fetching data");
+      setAverageMissionsResult("Error: out of bounds, min = 1957, max = 2022");
     }
   };
 
@@ -220,9 +245,23 @@ function QueryPanel({ data }) {
       <div className="chart-card">
         <div className="chart-title">GET MISSIONS BY DATE RANGE</div>
         <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-          <input type="date" style={{ ...inputStyle, colorScheme: "dark", flex: 1 }} value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+          <input 
+            type="date" 
+            style={{ ...inputStyle, colorScheme: "dark", flex: 1 }} 
+            value={startDate} 
+            onChange={(e) => setStartDate(e.target.value)}
+            min={earliestDate}
+            max={latestDate}
+          />
           <span style={{ fontFamily: "var(--fm)", fontSize: ".65rem", color: "var(--muted)" }}>to</span>
-          <input type="date" style={{ ...inputStyle, colorScheme: "dark", flex: 1 }} value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+          <input 
+            type="date" 
+            style={{ ...inputStyle, colorScheme: "dark", flex: 1 }} 
+            value={endDate} 
+            onChange={(e) => setEndDate(e.target.value)}
+            min={earliestDate}
+            max={latestDate}
+          />
           <button style={btnStyle} onClick={getMissionsByDateRange}>Run</button>
         </div>
         {missionsByDateRangeResult !== null && (
@@ -253,7 +292,10 @@ function QueryPanel({ data }) {
         <div className="chart-title">GET MISSIONS BY YEAR</div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <input
-            type="number" min="1957" max="2030" placeholder="e.g. 2020"
+            type="number" 
+            min={earliestDate ? earliestDate.slice(0, 4) : "1957"} 
+            max={latestDate ? latestDate.slice(0, 4) : "2030"} 
+            placeholder={`e.g. ${earliestDate ? earliestDate.slice(0, 4) : "2020"}`}
             style={inputStyle} value={year}
             onChange={(e) => setYear(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && run6()}
@@ -338,13 +380,19 @@ function QueryPanel({ data }) {
         <div className="chart-title">GET AVERAGE MISSIONS PER YEAR</div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <input
-            type="number" min="1957" max="2030" placeholder="Start year"
+            type="number" 
+            min={earliestDate ? earliestDate.slice(0, 4) : "1957"} 
+            max={latestDate ? latestDate.slice(0, 4) : "2030"} 
+            placeholder={`Start year (e.g. ${earliestDate ? earliestDate.slice(0, 4) : "1957"})`}
             style={inputStyle} value={startYear}
             onChange={(e) => setStartYear(e.target.value)}
           />
           <span style={{ fontFamily: "var(--fm)", fontSize: ".65rem", color: "var(--muted)" }}>to</span>
           <input
-            type="number" min="1957" max="2030" placeholder="End year"
+            type="number" 
+            min={earliestDate ? earliestDate.slice(0, 4) : "1957"} 
+            max={latestDate ? latestDate.slice(0, 4) : "2030"} 
+            placeholder={`End year (e.g. ${latestDate ? latestDate.slice(0, 4) : "2022"})`}
             style={inputStyle} value={endYear}
             onChange={(e) => setEndYear(e.target.value)}
           />

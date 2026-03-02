@@ -15,6 +15,9 @@ function DataTable({ data }) {
   const [sort, setSort] = useState({ key: "Date", dir: "desc" });
   const [page, setPage] = useState(1);
 
+  const earliestDate = data.length > 0 ? data.reduce((min, r) => r.Date < min ? r.Date : min, data[0].Date) : "";
+  const latestDate = data.length > 0 ? data.reduce((max, r) => r.Date > max ? r.Date : max, data[0].Date) : "";
+
   const setF = (k, v) => { setFilters((p) => ({ ...p, [k]: v })); setPage(1); };
   const toggleSort = (k) => setSort((p) => p.key === k ? { key: k, dir: p.dir === "asc" ? "desc" : "asc" } : { key: k, dir: "asc" });
 
@@ -50,10 +53,10 @@ function DataTable({ data }) {
           {Object.keys(STATUS_COLORS).map((s) => <option key={s}>{s}</option>)}
         </select>
         <div style={{ display: "flex", alignItems: "center", gap: 6, fontFamily: "var(--fm)", fontSize: ".62rem", color: "var(--muted)" }}>
-          From <input type="date" className="filter-input" style={{ colorScheme: "dark", width: 140 }} value={filters.startDate} onChange={(e) => setF("startDate", e.target.value)} />
+          From <input type="date" className="filter-input" style={{ colorScheme: "dark", width: 140 }} value={filters.startDate} onChange={(e) => setF("startDate", e.target.value)} min={earliestDate} max={latestDate} />
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 6, fontFamily: "var(--fm)", fontSize: ".62rem", color: "var(--muted)" }}>
-          To <input type="date" className="filter-input" style={{ colorScheme: "dark", width: 140 }} value={filters.endDate} onChange={(e) => setF("endDate", e.target.value)} />
+          To <input type="date" className="filter-input" style={{ colorScheme: "dark", width: 140 }} value={filters.endDate} onChange={(e) => setF("endDate", e.target.value)} min={earliestDate} max={latestDate} />
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 6, fontFamily: "var(--fm)", fontSize: ".62rem", color: "var(--muted)" }}>
           Min Price <input type="number" className="filter-input" style={{ colorScheme: "dark", width: 120 }} placeholder="e.g. 10" value={filters.minPrice} onChange={(e) => setF("minPrice", e.target.value)} />
