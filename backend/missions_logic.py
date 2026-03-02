@@ -1,42 +1,45 @@
 import pandas as pd
 import os
 
+# dataframe using space_missions.csv
 CSV_PATH = os.path.join(os.path.dirname(__file__), 'data', 'space_missions.csv')
 df = pd.read_csv(CSV_PATH)
 
-df['Date'] = df['Date'].astype(str).str.strip().str[:10]  # "YYYY-MM-DD"
+# turn all entry to str, remove whitespace, take first 10 chars
+df['Date'] = df['Date'].astype(str).str.strip().str[:10] 
 
 # parse price
 if 'Price' in df.columns:
-    df['Price'] = pd.to_numeric(
-        df['Price'].astype(str).str.replace(',', ''), errors='coerce'
-    ).fillna(0)
+    df['Price'] = pd.to_numeric( # str to float/int
+        df['Price'].astype(str).str.replace(',', ''), errors='coerce' # delete commas
+    ).fillna(0) # replace NaN with 0
 
 # date compare
 df_dt = df.copy()
-df_dt['_dt'] = pd.to_datetime(df['Date'], errors='coerce')
+#datetime objects to compare dates
+df_dt['_dt'] = pd.to_datetime(df['Date'], errors='coerce') 
 
 
 def getMissionCountByCompany(companyName: str) -> int:
+    # check inner condition for true
     return int(len(df[df['Company'] == companyName]))
-
 
 def getSuccessRate(companyName: str) -> float:
     company_data = df[df['Company'] == companyName]
-    if company_data.empty:
+    if company_data.empty: # no missions
         return 0.0
     total = len(company_data)
     successes = len(company_data[company_data['MissionStatus'] == 'Success'])
-    rate = float(successes / total * 100)
-    return round(rate, 1) if rate == 0.0 else round(rate, 2)
+    rate = float(successes / total * 100) # percentage
+    return round(rate, 1) if rate == 0.0 else round(rate, 2) # specific `0.0 format`
 
 def getMissionsByDateRange(startDate: str, endDate: str) -> list:
     mask = (df['Date'] >= startDate) & (df['Date'] <= endDate)
-    filtered = df.loc[mask].sort_values(by=['Date', 'Time'])
-    return filtered['Mission'].tolist()
+    filtered = df.loc[mask].sort_values(by=['Date', 'Time']) # select/sort specific rows
+    return filtered['Mission'].tolist() # return only mission
 
 def getTopCompaniesByMissionCount(n: int) -> list:
-    counts = df['Company'].value_counts().reset_index()
+    counts = df['Company'].value_counts().reset_index() # count comoaby column
     counts.columns = ['companyName', 'missionCount']
     sorted_df = counts.sort_values(
         by=['missionCount', 'companyName'], ascending=[False, True]
@@ -67,7 +70,7 @@ def getMostUsedRocket() -> str:
     # getting rockets with max count
     max_count = max(counts.values()) if counts else 0
     candidates = [r for r, c in counts.items() if c == max_count]
-    # alphabetical
+        # alphabetical
     return sorted(candidates)[0] if candidates else ""
 
 def getAverageMissionsPerYear(startYear: int, endYear: int) -> float:
